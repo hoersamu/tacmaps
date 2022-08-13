@@ -1,4 +1,4 @@
-name: "Nightly build"
+name: "Deploy"
 on:
   workflow_dispatch:
 
@@ -39,8 +39,8 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            hoersamu/tacmaps:nightly
-            ghcr.io/hoersamu/tacmaps:nightly
+            hoersamu/tacmaps:latest
+            ghcr.io/hoersamu/tacmaps:latest
 
       - name: Invoke deployment hook
         uses: distributhor/workflow-webhook@v2
