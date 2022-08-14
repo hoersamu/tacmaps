@@ -123,7 +123,7 @@ app.get("/tacmap", async (req, res) => {
 });
 
 app.get("/", (_req, res) => {
-	res.sendFile(path.join(process.cwd(), "src/index.html"));
+	res.sendFile(path.join(process.cwd(), "public/index.html"));
 });
 
 app.get("/maps", (_req, res) => {
