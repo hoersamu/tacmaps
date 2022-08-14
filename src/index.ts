@@ -1,40 +1,63 @@
 import express from "express";
 import path from "path";
-import sharp from "sharp";
-import { Map, Maps } from "./maps";
-import { StrongpointImages } from "./strongpoints";
+import sharp, { OverlayOptions } from "sharp";
+import { Map } from "./maps";
+import { QuerySchema } from "./schema";
+import { MapDirections, StrongpointImages } from "./strongpoints";
 
 const app = express();
 const port = 3000;
 
-app.get("/", (req, res) => {
-	const map = req.query.map?.toString() as Map;
-	const strongpoints = req.query.strongpoints?.toString().split(",");
+const validateStrongpoints = (strongpoints: string[] | undefined, map: Map) =>
+	strongpoints?.forEach((strongpoint) => {
+		if (!Object.keys(StrongpointImages[map]).includes(strongpoint))
+			throw new Error(
+				`${strongpoint} is not a valid strongpoint. Should be one of: ${Object.keys(
+					StrongpointImages[map]
+				).join(", ")}`
+			);
+	});
 
-	const width = req.query.width?.toString();
-	const height = req.query.height?.toString();
+const getOverlaySize = (map: Map, caps: number): [number, number] => {
+	if (MapDirections[map] === "btt" || MapDirections[map] === "ttb") {
+		return [1920, 384 * caps];
+	}
+	return [384 * caps, 1920];
+};
 
-	if (width && Number.isNaN(Number.parseInt(width, 10)))
-		return res.status(400).json({ error: "width must be an integer" });
-	if (height && Number.isNaN(Number.parseInt(height, 10)))
-		return res.status(400).json({ error: "height must be an integer" });
+const getOverlayLocatione = (
+	map: Map,
+	caps: number,
+	faction: "axis" | "allies"
+): { top: number; left: number } => {
+	if (
+		(MapDirections[map] === "ttb" && faction === "axis") ||
+		(MapDirections[map] === "btt" && faction === "allies") ||
+		(MapDirections[map] === "rtl" && faction === "allies") ||
+		(MapDirections[map] === "ltr" && faction === "axis")
+	) {
+		return { top: 0, left: 0 };
+	}
+	if (MapDirections[map] === "ttb" || MapDirections[map] === "btt") {
+		return { top: 1920 - 384 * caps, left: 0 };
+	}
+	return { top: 0, left: 1920 - 384 * caps };
+};
 
-	if (!map || !Maps.options.includes(map))
-		return res.status(400).json({
-			error: `Invalid map. Should be one of: ${Maps.options.join(", ")}`,
-		});
+app.get("/tacmap", async (req, res) => {
+	const params = QuerySchema.safeParse(req.query);
+	if (!params.success) {
+		res.status(400).send(params.error);
+		return;
+	}
+
+	const { map, width, height, axisCaps, axisColor, alliesCaps, alliesColor } =
+		params.data;
+	const strongpoints = params.data.strongpoints?.split(",") || [];
 
 	try {
-		strongpoints?.forEach((strongpoint) => {
-			if (!Object.keys(StrongpointImages[map]).includes(strongpoint))
-				throw new Error(
-					`${strongpoint} is not a valid strongpoint. Should be one of: ${Object.keys(
-						StrongpointImages[map]
-					).join(", ")}`
-				);
-		});
+		validateStrongpoints(strongpoints, map);
 	} catch (error) {
-		console.log(error);
 		return res.status(400).json({ error: (error as Error).message });
 	}
 
@@ -54,6 +77,33 @@ app.get("/", (req, res) => {
 	// setting our "Content-Type" as an image file
 	res.setHeader("Content-Type", "image/webp");
 
+	const colorOverlays: OverlayOptions[] = [];
+
+	if (axisCaps && axisColor) {
+		const input = await sharp(
+			path.join(process.cwd(), `public/${axisColor}.png`)
+		)
+			.resize(...getOverlaySize(map, axisCaps))
+			.toBuffer();
+
+		colorOverlays.push({
+			input,
+			...getOverlayLocatione(map, axisCaps, "axis"),
+		});
+	}
+	if (alliesCaps && alliesColor) {
+		const input = await sharp(
+			path.join(process.cwd(), `public/${alliesColor}.png`)
+		)
+			.resize(...getOverlaySize(map, alliesCaps))
+			.toBuffer();
+
+		colorOverlays.push({
+			input,
+			...getOverlayLocatione(map, alliesCaps, "allies"),
+		});
+	}
+
 	return sharp(path.join(process.cwd(), `public/hll_maps/${map}.png`))
 		.composite([
 			...(strongpoints || []).map((point) => ({
@@ -61,17 +111,32 @@ app.get("/", (req, res) => {
 				left: StrongpointImages[map][point].left,
 				top: StrongpointImages[map][point].top,
 			})),
+			...colorOverlays,
 		])
 		.toBuffer()
 		.then((data) =>
 			sharp(data)
-				.resize(
-					Number.parseInt(width as string, 10) || 1920,
-					Number.parseInt(height as string, 10) || 1920
-				)
+				.resize(width || 1920, height || 1920)
 				.webp()
 				.pipe(res)
 		);
+});
+
+app.get("/", (_req, res) => {
+	res.sendFile(path.join(process.cwd(), "src/index.html"));
+});
+
+app.get("/maps", (_req, res) => {
+	res.send(Object.keys(MapDirections));
+});
+
+app.get("/strongpoints", (_req, res) => {
+	res.send(
+		Object.keys(StrongpointImages).reduce((result, key) => {
+			result[key] = Object.keys(StrongpointImages[key as Map]);
+			return result;
+		}, {} as Record<string, string[]>)
+	);
 });
 
 app.listen(port, () => {

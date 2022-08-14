@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<title>Tacmap Generator</title>
+		<style>
+			body {
+				padding-top: 50px;
+			}
+			h1,
+			h2 {
+				width: 100%;
+				text-align: center;
+			}
+			#table-wrapper {
+				width: 100%;
+				display: flex;
+				justify-content: center;
+			}
+		</style>
+	</head>
+	<body>
+		<h1>Hell Let Loose tactical map generator</h1>
+		<h2>
+			This service dynamically renders tacmaps for the first person shooter Hell
+			Let Loose.
+		</h2>
+		<h2>
+			To see it in action head over to the
+			<a href="https://helo-system.de/tacmaps">HeLO-System website</a> and check
+			it out there or use the api under <a href="/tacmap">/tacmap</a>
+		</h2>
+		<h2>
+			If you want to support this service you can find our donation link on the
+			HeLO-System website.
+		</h2>
+		<div id="table-wrapper">
+			<table>
+				<thead>
+					<tr>
+						<th>Param</th>
+						<th>Options</th>
+						<th>Description</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr>
+						<td>map</td>
+						<td>
+							<a href="/maps">/maps</a>
+						</td>
+						<td>This is the map you want displayed</td>
+					</tr>
+					<tr>
+						<td>strongpoints</td>
+						<td>
+							<a href="/strongpoints">/strongpoints</a>
+						</td>
+						<td>list of strongpoints you want displayed on the map</td>
+					</tr>
+					<tr>
+						<td>width</td>
+						<td>x &lt; 1920</td>
+						<td>Width of the output image</td>
+					</tr>
+					<tr>
+						<td>height</td>
+						<td>x &lt; 1920</td>
+						<td>Height of the output image</td>
+					</tr>
+					<tr>
+						<td>axisColor / alliesColor</td>
+						<td>red or blue</td>
+						<td>must always be used with the corresponding caps param</td>
+					</tr>
+					<tr>
+						<td>axisCaps / alliesCaps</td>
+						<td>0 &gt; x &lt;= 5</td>
+						<td>must always be used with the corresponding color param</td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</body>
+</html>
