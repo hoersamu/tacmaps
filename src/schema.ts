@@ -10,8 +10,8 @@ const sizeRefiner: [(value?: number) => boolean, { message: string }] = [
 	{ message: "Must be smaller than 1920px" },
 ];
 const capsRefiner: [(value?: number) => boolean, { message: string }] = [
-	(value) => (value ? value <= 5 && value >= 1 : true),
-	{ message: "Must be between 1 and 5" },
+	(value) => (value ? value <= 5 && value >= 0 : true),
+	{ message: "Must be between 0 and 5" },
 ];
 
 export const QuerySchema = z
@@ -43,12 +43,14 @@ export const QuerySchema = z
 	})
 	.refine(
 		(data) =>
-			(data.alliesCaps && data.alliesColor) ||
-			(!data.alliesCaps && !data.alliesColor),
+			(data.alliesCaps !== undefined && data.alliesColor) ||
+			(data.alliesCaps === undefined && !data.alliesColor),
 		{ message: "Either provide both alliesColor and alliesCap or neither" }
 	)
 	.refine(
-		(data) =>
-			(data.axisCaps && data.axisColor) || (!data.axisCaps && !data.axisColor),
-		{ message: "Either provide both axisColor and axisCap or neither" }
+		(data) => (
+			(data.axisCaps !== undefined && data.axisColor) ||
+				(data.axisCaps === undefined && !data.axisColor),
+			{ message: "Either provide both axisColor and axisCap or neither" }
+		)
 	);
