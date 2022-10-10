@@ -43,7 +43,7 @@ jobs:
             ghcr.io/hoersamu/tacmaps:latest
 
       - name: Invoke deployment hook
-        uses: distributhor/workflow-webhook@v2
+        uses: distributhor/workflow-webhook@v3
         env:
           webhook_url: ${{ secrets.DEPLOY_WEBHOOK }}
           webhook_secret: ${{ secrets.DEPLOY_SECRET }}
