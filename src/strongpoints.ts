@@ -208,6 +208,23 @@ export const StrongpointImages: Record<
 		Mühlenweg: { left: 871, top: 1490 },
 		Hägelkreuz: { left: 1147, top: 1431 },
 	},
+	Kharkov: {
+		"Wehrmacht outlook": { left: 520, top: 1449 },
+		Haystorage: { left: 929, top: 1439 },
+		Overpass: { left: 1273, top: 1430 },
+		"River crossing": { left: 622, top: 1124 },
+		"Belgorod outskirts": { left: 960, top: 1092 },
+		Lumberyard: { left: 1309, top: 1085 },
+		"Water mill": { left: 520, top: 697 },
+		"St. Mary": { left: 941, top: 731 },
+		Distillery: { left: 1304, top: 697 },
+		"Bitter spring": { left: 509, top: 300 },
+		Lumberworks: { left: 960, top: 363 },
+		"Windmill hillside": { left: 1339, top: 325 },
+		"Marsh town": { left: 514, top: 41 },
+		"Soviet vantage point": { left: 960, top: 46 },
+		"German fuel dump": { left: 1282, top: 48 },
+	},
 };
 
 type MapDirection = "ltr" | "rtl" | "ttb" | "btt";
@@ -225,4 +242,5 @@ export const MapDirections: Record<Map, MapDirection> = {
 	Utah: "ltr",
 	Omaha: "ltr",
 	Remagen: "ttb",
+	Kharkov: "btt",
 };

@@ -13,5 +13,6 @@ export const Maps = z.enum([
 	"Utah",
 	"Omaha",
 	"Remagen",
+	"Kharkov",
 ]);
 export type Map = z.infer<typeof Maps>;
